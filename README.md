@@ -12,21 +12,23 @@
 ## Overview
 
 This project aims to compare the performance of two leading time-series databases, TimescaleDB and InfluxDB, using the Time Series Benchmarking Suite (TSBS). The benchmarking is conducted for both single and multi-node configurations, considering three different data sizes and two distinct use cases/database schemas. 
+The experiments were conducted using Docker containers on Ubuntu Desktop Server 16.04 running on 8 CPU cores / 16GB RAM / 90GB Storage.
 
 ---
 
 ## Setup and Requirements
 
-1. **Databases Installation:**
-   - Install TimescaleDB [link]
-   - Install InfluxDB [link]
+Prerequisites: `go`, `Docker`, `docker-compose`.
 
-2. **TSBS Benchmarking Suite Setup:**
-   - Clone the TSBS repository [link]
-   - Follow the TSBS setup instructions [link]
+1. **Clone the TSBS repository:**
+   ```bash
+   # Fetch TSBS and its dependencies
+   go get github.com/timescale/tsbs
+2. ** Replace go programs???????????? **
+   cd $GOPATH/src/github.com/timescale/tsbs
 
-3. **Dataset Generation:**
-   - Utilize TSBS to generate datasets for different sizes and use cases [commands]
+
+
 
 ---
 
