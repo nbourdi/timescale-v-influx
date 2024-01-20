@@ -53,8 +53,10 @@
 
     ```bash
     psql -U postgres -d benchmark
+    CREATE ROLE testrole;
     CALL distributed_exec($$ CREATE ROLE testrole PASSWORD 'postgres' LOGIN $$);
     GRANT USAGE ON FOREIGN SERVER dn1, dn2, dn3 TO testrole;
+    exit
     exit
     ```
 
