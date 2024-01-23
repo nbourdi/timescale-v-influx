@@ -9,14 +9,14 @@
 |-------------------------|------------|
 | Natalia Bourdi          | el19031    |
 | Nikolas Stamatopoulos   | el19020    |
-| George Mystriotis       | el19060    |
+| George Mystriotis       | el19065    |
 
 
 ---
 
 ## Overview
 
-This project aims to compare the performance of two leading time-series databases, TimescaleDB and InfluxDB, using the **Time Series Benchmarking Suite (TSBS)**. The benchmarking is conducted for both single and multi-node configurations, considering three different data sizes and two distinct use cases/database schemas. 
+This project aims to compare the performance of two leading time-series databases, TimescaleDB and InfluxDB, using the **[Time Series Benchmarking Suite (TSBS)](https://github.com/timescale/tsbs)**. We benchmark both single and multi-node configurations, considering three different data sizes and two distinct use cases/database schemas. 
 
 The experiments were conducted using Docker containers on Ubuntu Desktop Server 16.04 running on 8 CPU cores @ 2.30GHz / 16GB RAM / 90GB Storage.
 
@@ -34,6 +34,7 @@ The experiments were conducted using Docker containers on Ubuntu Desktop Server 
 - Single-node InfluxDB v1 (uses FluxQL)
 - Single-node InfluxDB v2 (uses Flux)
 
+<sup> InfluxDB multi-node was not tested as it is exclusive to the Enterprise plan. </sup>
 
 ---
 
@@ -41,23 +42,39 @@ The experiments were conducted using Docker containers on Ubuntu Desktop Server 
 
 Prerequisites: `go`, `Docker`, `docker-compose`.
 
-1. **Clone the repository:**
+1. **Clone the repository**
    
    ```bash
-   # Fetch TSBS and its dependencies
-   go get github.com/timescale/tsbs
+   git clone https://github.com/nbourdi/timescale-v-influx
    ```
-   <sup> All TSBS go programs useful for the application are included. For compatibility with Influx v2, some of the programs were tweaked. </sup>
+   <sup> All TSBS go programs useful for the application are included. **For compatibility with Influx v2**, some of the programs were tweaked. </sup>
+
+
+2. **Setup and benchmark your desired database configuration(s)**
    
-2. Follow setup specific instructions
-   in docs/ ....
+   Use the relevant how-to in [docs](https://github.com/nbourdi/timescale-v-influx/blob/main/docs/).
+   
 
-
-
-
+   
 ---
 
 ## Benchmarking Configurations
+
+### Images/Versions 
+
+- TimescaleDB 2.13 | PostgreSQL 14
+  
+This is the last version that supports multi-node.
+
+- InfluxDB v2.7
+  
+The latest version of InfluxDB, using the newer Flux query language.
+
+- InfluxDB v1.8
+  
+An older version which uses the SQL-like InfluxQL and is supported by TSBS.
+
+----- 
 
 ### Datasets generated/used
 
@@ -73,53 +90,11 @@ Both use cases implemented by TSBS were used for the benchmarking process.
 
  2. **DevOps Readings:**
       
-   | Size   | Duration       | Scale           |
-   |--------|-----------------|--------------------|
-   | 500MB  | 10 days         | 50 servers         |
-   | 5GB    | 20 days         | 50 servers         |
-   | 25GB   | 3 months        | 50 servers         |
+      | Size   | Duration       | Scale           |
+      |--------|-----------------|--------------------|
+      | 500MB  | 10 days         | 50 servers         |
+      | 5GB    | 20 days         | 50 servers         |
+      | 25GB   | 3 months        | 50 servers         |
 
-
-## Timescale configuration
-
-### Single node database
-
-We tested 
-
----
-
-## Benchmarking Results
-
-### Single Node Configurations
-
-#### IoT Data from Trucks
-
-| Database       | Dataset Size 1 | Dataset Size 2 | Dataset Size 3 |
-| -------------- | -------------- | -------------- | -------------- |
-| TimescaleDB    | [results]      | [results]      | [results]      |
-| InfluxDB       | [results]      | [results]      | [results]      |
-
-#### DevOps Readings from Server
-
-| Database       | Dataset Size 1 | Dataset Size 2 | Dataset Size 3 |
-| -------------- | -------------- | -------------- | -------------- |
-| TimescaleDB    | [results]      | [results]      | [results]      |
-| InfluxDB       | [results]      | [results]      | [results]      |
-
-### Multinode Configurations
-
-#### IoT Data from Trucks
-
-| Database       | Dataset Size 1 | Dataset Size 2 | Dataset Size 3 |
-| -------------- | -------------- | -------------- | -------------- |
-| TimescaleDB    | [results]      | [results]      | [results]      |
-| InfluxDB       | [results]      | [results]      | [results]      |
-
-#### DevOps Readings from Server
-
-| Database       | Dataset Size 1 | Dataset Size 2 | Dataset Size 3 |
-| -------------- | -------------- | -------------- | -------------- |
-| TimescaleDB    | [results]      | [results]      | [results]      |
-| InfluxDB       | [results]      | [results]      | [results]      |
-
+------
 
