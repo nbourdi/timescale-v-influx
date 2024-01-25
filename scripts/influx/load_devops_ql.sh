@@ -1,6 +1,6 @@
 #!/bin/bash
 
-results_dir="results/influx/flux/load_results"
+results_dir="results/influx/ql/load_results"
 
 mkdir -p "${results_dir}"
 

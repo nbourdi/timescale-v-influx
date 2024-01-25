@@ -1,10 +1,12 @@
 #!/bin/bash
 
-results_dir="results/influx/flux/load_results"
+# This script benchmarks the loading capabilities for all configurations and all three iot datasets
+
+results_dir="results/influx/ql/load_results"
 
 mkdir -p "${results_dir}"
 
-datasets=("devops_h10" "devops_d4" "devops_d16")
+datasets=("s500d2" "s500d20" "s500m3")
 workers=("1" "2" "4" "8")
 
 for dataset in "${datasets[@]}"; do
@@ -14,7 +16,7 @@ for dataset in "${datasets[@]}"; do
 
     cat "${input_file}" | gunzip | \
     tsbs_load_influx --batch-size=1000 --workers="${worker}" \
-      --urls="http://localhost:8087/" --do-create-db=false \
+      --urls="http://localhost:8087" --do-create-db=false \
       --seed=0 \
       --results-file="${output_file}"
 

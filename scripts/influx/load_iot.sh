@@ -2,7 +2,7 @@
 
 # This script benchmarks the loading capabilities for all configurations and all three iot datasets
 
-results_dir="/home/user/influx/influx-ql-benchmarks/load_results"
+results_dir="results/influx/flux/load_results"
 
 mkdir -p "${results_dir}"
 
@@ -12,7 +12,7 @@ workers=("1" "2" "4" "8")
 for dataset in "${datasets[@]}"; do
   for worker in "${workers[@]}"; do
     input_file="/mnt/data/influx/data/${dataset}.gz"
-    output_file="${results_dir}/influxql-w${worker}-${dataset}.txt"
+    output_file="${results_dir}/flux-w${worker}-${dataset}.txt"
 
     cat "${input_file}" | gunzip | \
     tsbs_load_influx --batch-size=1000 --workers="${worker}" \

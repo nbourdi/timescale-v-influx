@@ -1,0 +1,42 @@
+ts-an:
+  image: timescale/timescaledb:latest-pg14
+  container_name: ts-an
+  ports:
+    - "5432:5432"
+  environment:
+    POSTGRES_PASSWORD: postgres
+  volumes:
+    - /mnt/data/timescale/ts-an:/var/lib/postgresql/data
+
+    
+ts-dn1:
+  image: timescale/timescaledb:latest-pg14
+  container_name: ts-dn1
+  ports:
+    - "5433:5432"
+  environment:
+    POSTGRES_PASSWORD: postgres
+  volumes:
+    - /mnt/data/timescale/ts-dn1:/var/lib/postgresql/data
+
+ts-dn2:
+  image: timescale/timescaledb:latest-pg14
+  container_name: ts-dn2
+  ports:
+    - "5434:5432"
+  environment:
+    POSTGRES_PASSWORD: postgres
+  volumes:
+    - /mnt/data/timescale/ts-dn2:/var/lib/postgresql/data
+
+ts-dn3:
+  image: timescale/timescaledb:latest-pg14
+  container_name: ts-dn3
+  ports:
+    - "5435:5432"
+  environment:
+    POSTGRES_PASSWORD: postgres
+  volumes:
+    - /mnt/data/timescale/ts-dn3:/var/lib/postgresql/data
+
+

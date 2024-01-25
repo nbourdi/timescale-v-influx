@@ -1,6 +1,6 @@
 #!/bin/bash
 
-base_dir="/mnt/data/influx/queries"
+base_dir="results/influx/queries"
 
 while getopts ":d:l:" opt; do
   case $opt in
