@@ -49,12 +49,17 @@ Prerequisites: `go`, `Docker`, `docker-compose`.
    ```
    <sup> All TSBS go programs useful for the application are included. **For compatibility with Influx v2**, some of the programs were tweaked. </sup>
 
-
-2. **Setup and benchmark your desired database configuration(s)**
+2. **Build all tsbs executables/commands**
    
-   Use the relevant how-to in [docs](https://github.com/nbourdi/timescale-v-influx/blob/main/docs/).
-   
+   Navigate to the /tsbs directory and execute:
+   ```bash
+   $ make 
+   ```
 
+3. **Setup and benchmark your desired database configuration(s)**
+   
+   Use the relevant how-tos in [docs](https://github.com/nbourdi/timescale-v-influx/blob/main/docs/).
+   
    
 ---
 
