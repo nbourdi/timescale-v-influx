@@ -5,7 +5,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"fmt"
 )
 
 type noFlowBenchmarkRunner struct {
@@ -14,7 +13,7 @@ type noFlowBenchmarkRunner struct {
 
 func (l *noFlowBenchmarkRunner) RunBenchmark(b targets.Benchmark) {
 	wg, start := l.preRun(b)
-	fmt.Println(wg)
+
 	var numChannels uint
 	if l.HashWorkers {
 		numChannels = l.Workers
@@ -27,7 +26,6 @@ func (l *noFlowBenchmarkRunner) RunBenchmark(b targets.Benchmark) {
 	for i := uint(0); i < l.Workers; i++ {
 		go l.work(b, wg, channels[i%numChannels], i)
 	}
-	fmt.Println("here")
 	// Start scan process - actual data read process
 	scanWithoutFlowControl(b.GetDataSource(), b.GetPointIndexer(numChannels), b.GetBatchFactory(), channels, l.BatchSize, l.Limit)
 	for _, c := range channels {

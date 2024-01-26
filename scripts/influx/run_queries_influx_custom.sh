@@ -38,8 +38,14 @@ for input_file in "${files[@]}"; do
     
     output_file="${output_dir}/${file_name}.json"
 
-    cat ${input_file} | gunzip | tsbs_run_queries_influx \
+    if [ "$language" = "flux" ]; then
+      cat "${input_file}" | gunzip | tsbs_run_queries_influx \
+      --db-name="benchmark" --urls="http://localhost:8087" \
+      --workers=8 --prewarm-queries=true --results-file="${output_file}"
+      echo "Processed: ${input_file} -> ${output_file}"
+    elif [ "$language" = "ql" ]; then
+      cat "${input_file}" | gunzip | tsbs_run_queries_influxql \
         --db-name="benchmark" --urls="http://localhost:8087" \
         --workers=8 --prewarm-queries=true --results-file="${output_file}"
-    echo "Processed: ${input_file} -> ${output_file}"
+      echo "Processed: ${input_file} -> ${output_file}"
 done

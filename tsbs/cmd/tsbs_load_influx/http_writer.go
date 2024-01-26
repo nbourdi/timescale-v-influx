@@ -50,17 +50,13 @@ type HTTPWriter struct {
 
 // NewHTTPWriter returns a new HTTPWriter from the supplied HTTPWriterConfig.
 func NewHTTPWriter(c HTTPWriterConfig, consistency string) *HTTPWriter {
-	url := c.Host + "api/v2/write?org=org" + "&bucket=" + url.QueryEscape(c.Database)
-
-	fmt.Println("URL:", url)
-
 	return &HTTPWriter{
 		client: fasthttp.Client{
 			Name: httpClientName,
 		},
 
 		c:   c,
-		url: []byte(url),
+		url: []byte(c.Host + "/write?consistency=" + consistency + "&db=" + url.QueryEscape(c.Database)),
 	}
 }
 
@@ -73,8 +69,6 @@ func (w *HTTPWriter) initializeReq(req *fasthttp.Request, body []byte, isGzip bo
 	req.Header.SetContentTypeBytes(textPlain)
 	req.Header.SetMethodBytes(methodPost)
 	req.Header.SetRequestURIBytes(w.url)
-	req.Header.Set("Authorization", "Token BbvDs-4dWwspWZpl3FSDKgFmpPDeig7LhasxPiG13-P_XQKb6lx68BrGmR75Hpiobhn70GBH96u1dtb1urKhIQ==")
-
 	if isGzip {
 		req.Header.Add(headerContentEncoding, headerGzip)
 	}
@@ -87,7 +81,6 @@ func (w *HTTPWriter) executeReq(req *fasthttp.Request, resp *fasthttp.Response) 
 	lat := time.Since(start).Nanoseconds()
 	if err == nil {
 		sc := resp.StatusCode()
-		//fmt.Println(sc)
 		if sc == 500 && backpressurePred(resp.Body()) {
 			err = errBackoff
 		} else if sc != fasthttp.StatusNoContent {

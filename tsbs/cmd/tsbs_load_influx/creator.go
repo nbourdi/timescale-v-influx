@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"time"
-	"strings"
-	//"golang.org/x/net/html"
 )
 
 type dbCreator struct {
@@ -35,18 +33,10 @@ func (d *dbCreator) DBExists(dbName string) bool {
 }
 
 func (d *dbCreator) listDatabases() ([]string, error) {
-	fmt.Println("joined listdatabases")
-	u := fmt.Sprintf("%sapi/v2/buckets?org=org", d.daemonURL)
-	req, err := http.NewRequest("GET", u, nil)
+	u := fmt.Sprintf("%s/query?q=show%%20databases", d.daemonURL)
+	resp, err := http.Get(u)
 	if err != nil {
 		return nil, fmt.Errorf("listDatabases error: %s", err.Error())
-	}
-	req.Header.Set("Authorization", "Token BbvDs-4dWwspWZpl3FSDKgFmpPDeig7LhasxPiG13-P_XQKb6lx68BrGmR75Hpiobhn70GBH96u1dtb1urKhIQ==")
-	//fmt.Println(req)
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
 	}
 	defer resp.Body.Close()
 
@@ -55,89 +45,42 @@ func (d *dbCreator) listDatabases() ([]string, error) {
 		return nil, err
 	}
 
-	type Link struct {
-		Labels  string `json:"labels"`
-		Members string `json:"members"`
-		Org     string `json:"org"`
-		Owners  string `json:"owners"`
-		Self    string `json:"self"`
-		Write   string `json:"write"`
-	}
-	
-	type RetentionRule struct {
-		EverySeconds int    `json:"everySeconds"`
-		Type         string `json:"type"`
-	}
-	
-	type Bucket struct {
-		CreatedAt       time.Time       `json:"createdAt"`
-		Description     string          `json:"description"`
-		ID              string          `json:"id"`
-		Labels          []string        `json:"labels"`
-		Links           Link            `json:"links"`
-		Name            string          `json:"name"`
-		OrgID           string          `json:"orgID"`
-		RetentionRules  []RetentionRule `json:"retentionRules"`
-		SchemaType      string          `json:"schemaType"`
-		Type            string          `json:"type"`
-		UpdatedAt       time.Time       `json:"updatedAt"`
-	}
-	
-	type Links struct {
-		Self string `json:"self"`
-	}
-	
+	// Do ad-hoc parsing to find existing database names:
+	// {"results":[{"series":[{"name":"databases","columns":["name"],"values":[["_internal"],["benchmark_db"]]}]}]}%
 	type listingType struct {
-		Buckets []Bucket `json:"buckets"`
-		Links   Links    `json:"links"`
+		Results []struct {
+			Series []struct {
+				Values [][]string
+			}
+		}
 	}
-	
-
 	var listing listingType
 	err = json.Unmarshal(body, &listing)
 	if err != nil {
 		return nil, err
 	}
+
 	ret := []string{}
-	fmt.Println(listing)
-	for _, nestedName := range listing.Buckets {
-		// nestedName is now a single Bucket struct, not a string
-		name := nestedName.Name
-		id := nestedName.ID
-		// the _monitoring and _tasks databases are skipped:
-		if name == "_monitoring" || name == "_tasks" {
-			continue;
+	for _, nestedName := range listing.Results[0].Series[0].Values {
+		name := nestedName[0]
+		// the _internal database is skipped:
+		if name == "_internal" {
+			continue
 		}
-	
-		ret = append(ret, id)
+		ret = append(ret, name)
 	}
-	fmt.Println(ret)
 	return ret, nil
 }
 
 func (d *dbCreator) RemoveOldDB(dbName string) error {
-	u := fmt.Sprintf("%sapi/v2/buckets?org=%s&bucket=%s", d.daemonURL, dbName)
-
-	req, err := http.NewRequest("DELETE", u, nil)
+	u := fmt.Sprintf("%s/query?q=drop+database+%s", d.daemonURL, dbName)
+	resp, err := http.Post(u, "text/plain", nil)
 	if err != nil {
-		return fmt.Errorf("drop bucket error: %s", err.Error())
+		return fmt.Errorf("drop db error: %s", err.Error())
 	}
-	
-	// Set the Authorization header if needed
-	req.Header.Set("Authorization", "Bearer  BbvDs-4dWwspWZpl3FSDKgFmpPDeig7LhasxPiG13-P_XQKb6lx68BrGmR75Hpiobhn70GBH96u1dtb1urKhIQ==")
-	
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return fmt.Errorf("drop bucket error: %s", err.Error())
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("drop db returned non-200 code: %d", resp.StatusCode)
 	}
-	defer resp.Body.Close()
-	
-	// Process the response...
-	if resp.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("drop bucket returned non-204 (No Content) code: %d", resp.StatusCode)
-	}
-	
 	time.Sleep(time.Second)
 	return nil
 }
@@ -149,21 +92,16 @@ func (d *dbCreator) CreateDB(dbName string) error {
 	}
 
 	// serialize params the right way:
-	u.Path = "/api/v2/write"
+	u.Path = "query"
 	v := u.Query()
-	v.Set("org", "org") // Replace "org" with your actual organization name
-	v.Set("bucket", dbName)
+	v.Set("consistency", "all")
+	v.Set("q", fmt.Sprintf("CREATE DATABASE %s WITH REPLICATION %d", dbName, replicationFactor))
 	u.RawQuery = v.Encode()
 
-	data := fmt.Sprintf("db_create_measurement,host=local value=%d", 1)
-
-	req, err := http.NewRequest("POST", u.String(), strings.NewReader(data))
+	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return err
 	}
-
-	// Set the Authorization header if needed
-	// req.Header.Set("Authorization", "Bearer yourAccessToken")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -171,13 +109,11 @@ func (d *dbCreator) CreateDB(dbName string) error {
 		return err
 	}
 	defer resp.Body.Close()
+	// does the body need to be read into the void?
 
-	// Check the response status code
-	if resp.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("bad db create: %d", resp.StatusCode)
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("bad db create")
 	}
-
-	// Optionally read the response body
 
 	time.Sleep(time.Second)
 	return nil

@@ -182,7 +182,6 @@ func (l *CommonBenchmarkRunner) saveTestResult(took time.Duration, start time.Ti
 // RunBenchmark takes in a Benchmark b and uses it to run the load benchmark
 func (l *CommonBenchmarkRunner) RunBenchmark(b targets.Benchmark) {
 	wg, start := l.preRun(b)
-	fmt.Println("entered RunBenchmark!")
 	var numChannels, capacity uint
 	if l.HashWorkers {
 		numChannels = l.Workers

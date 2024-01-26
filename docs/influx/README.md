@@ -20,7 +20,7 @@ results/influx/fluxql/load_results
 
 ```bash
 cat <input_file>.gz | gunzip | \
-    tsbs_load_influx --batch-size=1000 --workers=8 \
+    tsbs_load_influxql --batch-size=1000 --workers=8 \
       --urls="http://localhost:8087" --do-create-db=false \
       --seed=0 
 ```

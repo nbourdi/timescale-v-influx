@@ -17,10 +17,12 @@ generators: tsbs_generate_data \
 
 loaders: tsbs_load \
 		 tsbs_load_influx \
- 		 tsbs_load_timescaledb \
+		tsbs_load_influxql \
+ 		 tsbs_load_timescaledb 
 
 runners: tsbs_run_queries_influx \
-		 tsbs_run_queries_timescaledb \
+	tsbs_run_queries_influxql \
+		 tsbs_run_queries_timescaledb 
 
 test:
 	$(GOTEST) -v ./...
