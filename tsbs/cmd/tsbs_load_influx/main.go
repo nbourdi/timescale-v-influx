@@ -53,12 +53,21 @@ var fatal = log.Fatalf
 // Parse args:
 func init() {
 	target = initializers.GetTarget(constants.FormatInflux)
+
 	config = load.BenchmarkRunnerConfig{}
 	config.AddToFlagSet(pflag.CommandLine)
 	target.TargetSpecificFlags("", pflag.CommandLine)
 	var csvDaemonURLs string
 
+	// pflag.VisitAll(func(flag *pflag.Flag) {
+	// 	fmt.Printf("Default %s: %v\n", flag.Name, flag.DefValue)
+	// })
+
 	pflag.Parse()
+
+	// pflag.VisitAll(func(flag *pflag.Flag) {
+	// 	fmt.Printf("%s: %v\n", flag.Name, flag.Value)
+	// })
 
 	err := utils.SetupConfigFile()
 
@@ -67,8 +76,10 @@ func init() {
 	}
 
 	if err := viper.Unmarshal(&config); err != nil {
+		fmt.Println("Error unmarshaling config:", err)
 		panic(fmt.Errorf("unable to decode config: %s", err))
 	}
+	
 
 	csvDaemonURLs = viper.GetString("urls")
 	replicationFactor = viper.GetInt("replication-factor")
@@ -85,6 +96,7 @@ func init() {
 		log.Fatal("missing 'urls' flag")
 	}
 	config.HashWorkers = false
+	fmt.Println(config)
 	loader = load.GetBenchmarkRunner(config)
 }
 
@@ -111,11 +123,12 @@ func (b *benchmark) GetDBCreator() targets.DBCreator {
 }
 
 func main() {
+
 	bufPool = sync.Pool{
 		New: func() interface{} {
 			return bytes.NewBuffer(make([]byte, 0, 4*1024*1024))
 		},
 	}
-
+	fmt.Println(&benchmark{})
 	loader.RunBenchmark(&benchmark{})
 }
