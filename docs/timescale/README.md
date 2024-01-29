@@ -3,13 +3,13 @@
 1. **Build and start the TimescaleDB instance.**
 
     ```bash
-    docker-compose -f /home/user/timescale-setup/multi-node/timescale-single.yml up
+    docker-compose -f docker-compose/timescale-single.yml up
     ```
 
 2. **Replace the configuration file.**
   
     ```bash
-    docker cp postgresql.conf timescaledb-single:/var/lib/postgresql/data/postgresql.conf
+    docker cp config-files/postgresql.conf timescaledb-single:/var/lib/postgresql/data/postgresql.conf
     ```
 
    This takes care of any authentication issues and incompatibilities.
@@ -61,7 +61,7 @@ Chunk time, partition and dir should be the same as the load parameters.
 1. **Build and start the TimescaleDB cluster [1 access node and 3 data nodes].**
 
     ```bash
-    docker-compose -f /home/user/timescale-setup/multi-node/timescale-cluster.yml up
+    docker-compose -f docker-compose/timescale-cluster.yml up
     ```
 
 2. **Create a database "benchmark" and configure container `ts-an` to be the cluster's access node.**
@@ -87,6 +87,7 @@ Chunk time, partition and dir should be the same as the load parameters.
     Exit the container.
 
     ```bash
+    cd config-files
     docker cp access.conf ts-an:/var/lib/postgresql/data/postgresql.conf
     docker cp data.conf ts-dn1:/var/lib/postgresql/data/postgresql.conf
     docker cp data.conf ts-dn2:/var/lib/postgresql/data/postgresql.conf
@@ -97,6 +98,7 @@ Chunk time, partition and dir should be the same as the load parameters.
     docker cp hba_data.conf ts-dn1:/var/lib/postgresql/data/pg_hba.conf
     docker cp hba_data.conf ts-dn2:/var/lib/postgresql/data/pg_hba.conf
     docker cp hba_data.conf ts-dn3:/var/lib/postgresql/data/pg_hba.conf
+    cd ../
     ```
 
     Restart the docker containers to load the updated config files.
