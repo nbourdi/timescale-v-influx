@@ -11,7 +11,6 @@
 | Nikolas Stamatopoulos   | el19020    |
 | George Mystriotis       | el19065    |
 
-
 ---
 
 ## Overview
